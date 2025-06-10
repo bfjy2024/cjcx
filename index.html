@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生平时成绩查询系统</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --light-color: #ecf0f1;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --text-color: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            margin-bottom: 15px;
+        }
+        
+        .logo-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-container {
+            background: var(--light-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .form-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+        
+        .form-title i {
+            margin-right: 10px;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        .result-container {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .student-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 36px;
+            color: var(--primary-color);
+        }
+        
+        .student-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .student-id {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        
+        .scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .scores-table th,
+        .scores-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .scores-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .scores-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .scores-table td:last-child {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .average-score {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(46, 204, 113, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--success-color);
+        }
+        
+        .error-container {
+            display: none;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .error-title {
+            color: var(--danger-color);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .error-message {
+            color: var(--text-color);
+            margin-bottom: 15px;
+        }
+        
+        .classes-container {
+            margin-top: 25px;
+        }
+        
+        .classes-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            text-align: center;
+        }
+        
+        .class-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .class-badge {
+            background: white;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: default;
+            transition: all 0.3s;
+        }
+        
+        .class-badge.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 600px) {
+            header {
+                padding: 20px 15px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .scores-table th,
+            .scores-table td {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h1>学生平时成绩查询系统</h1>
+                <p class="subtitle">输入学号和姓名查询您的平时成绩</p>
+            </div>
+        </header>
+        
+        <div class="content">
+            <div class="form-container">
+                <div class="form-title">
+                    <i class="fas fa-search"></i>
+                    <h2>成绩查询</h2>
+                </div>
+                
+                <div class="input-group">
+                    <label for="studentId"><i class="fas fa-id-card"></i> 学号</label>
+                    <input type="text" id="studentId" placeholder="请输入你的学号">
+                </div>
+                
+                <div class="input-group">
+                    <label for="studentName"><i class="fas fa-user"></i> 姓名</label>
+                    <input type="text" id="studentName" placeholder="请输入你的姓名">
+                </div>
+                
+                <button class="btn" id="searchBtn">
+                    <i class="fas fa-check-circle"></i> 查询成绩
+                </button>
+            </div>
+            
+            <div class="classes-container">
+                <h3 class="classes-title">班级列表</h3>
+                <div class="class-badges">
+                    <div class="class-badge active">高一(1)班</div>
+                    <div class="class-badge">高一(2)班</div>
+                    <div class="class-badge">高一(3)班</div>
+                    <div class="class-badge">高一(4)班</div>
+                </div>
+            </div>
+            
+            <div class="result-container" id="resultContainer">
+                <div class="student-info">
+                    <div class="avatar">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3 class="student-name" id="resultName">张三</h3>
+                    <div class="student-id" id="resultId">学号: 20230001</div>
+                </div>
+                
+                <table class="scores-table">
+                    <thead>
+                        <tr>
+                            <th>科目</th>
+                            <th>平时测验</th>
+                            <th>课堂表现</th>
+                            <th>作业完成</th>
+                            <th>总分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>语文</td>
+                            <td>28</td>
+                            <td>18</td>
+                            <td>24</td>
+                            <td>70</td>
+                        </tr>
+                        <tr>
+                            <td>数学</td>
+                            <td>30</td>
+                            <td>20</td>
+                            <td>25</td>
+                            <td>75</td>
+                        </tr>
+                        <tr>
+                            <td>英语</td>
+                            <td>27</td>
+                            <td>19</td>
+                            <td>23</td>
+                            <td>69</td>
+                        </tr>
+                        <tr>
+                            <td>物理</td>
+                            <td>29</td>
+                            <td>20</td>
+                            <td>26</td>
+                            <td>75</td>
+                        </tr>
+                        <tr>
+                            <td>化学</td>
+                            <td>26</td>
+                            <td>18</td>
+                            <td>24</td>
+                            <td>68</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="average-score">
+                    平时成绩平均分: <span id="averageScore">71.4</span> 分
+                </div>
+            </div>
+            
+            <div class="error-container" id="errorContainer">
+                <div class="error-title">
+                    <i class="fas fa-exclamation-triangle"></i> 查询失败
+                </div>
+                <p class="error-message" id="errorMessage">未找到匹配的学生成绩信息，请检查学号和姓名是否正确</p>
+                <button class="btn" id="retryBtn">
+                    <i class="fas fa-redo"></i> 重新查询
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 学生平时成绩查询系统 | 数据仅用于查询，未经授权不可传播</p>
+        </footer>
+    </div>
+
+    <script>
+        // 模拟成绩数据（实际使用时可替换为从Excel转换的JSON数据）
+        const studentsData = [
+            {
+                id: "20230001",
+                name: "张晓明",
+                class: "高一(1)班",
+                scores: {
+                    chinese: { test: 28, performance: 18, homework: 24 },
+                    math: { test: 30, performance: 20, homework: 25 },
+                    english: { test: 27, performance: 19, homework: 23 },
+                    physics: { test: 29, performance: 20, homework: 26 },
+                    chemistry: { test: 26, performance: 18, homework: 24 }
+                }
+            },
+            {
+                id: "20230002",
+                name: "李思思",
+                class: "高一(1)班",
+                scores: {
+                    chinese: { test: 30, performance: 20, homework: 28 },
+                    math: { test: 29, performance: 17, homework: 26 },
+                    english: { test: 28, performance: 19, homework: 25 },
+                    physics: { test: 27, performance: 18, homework: 23 },
+                    chemistry: { test: 30, performance: 20, homework: 27 }
+                }
+            },
+            {
+                id: "20230015",
+                name: "王浩然",
+                class: "高一(2)班",
+                scores: {
+                    chinese: { test: 25, performance: 17, homework: 22 },
+                    math: { test: 28, performance: 19, homework: 24 },
+                    english: { test: 26, performance: 18, homework: 23 },
+                    physics: { test: 24, performance: 16, homework: 21 },
+                    chemistry: { test: 27, performance: 19, homework: 25 }
+                }
+            },
+            {
+                id: "20230028",
+                name: "赵晓薇",
+                class: "高一(3)班",
+                scores: {
+                    chinese: { test: 29, performance: 20, homework: 27 },
+                    math: { test: 27, performance: 18, homework: 23 },
+                    english: { test: 30, performance: 20, homework: 28 },
+                    physics: { test: 28, performance: 19, homework: 25 },
+                    chemistry: { test: 25, performance: 17, homework: 22 }
+                }
+            },
+            {
+                id: "20230041",
+                name: "陈一鸣",
+                class: "高一(4)班",
+                scores: {
+                    chinese: { test: 26, performance: 18, homework: 23 },
+                    math: { test: 30, performance: 20, homework: 27 },
+                    english: { test: 28, performance: 19, homework: 25 },
+                    physics: { test: 29, performance: 20, homework: 26 },
+                    chemistry: { test: 27, performance: 18, homework: 24 }
+                }
+            }
+        ];
+
+        // DOM 元素
+        const studentIdInput = document.getElementById('studentId');
+        const studentNameInput = document.getElementById('studentName');
+        const searchBtn = document.getElementById('searchBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorMessage = document.getElementById('errorMessage');
+        const retryBtn = document.getElementById('retryBtn');
+        const resultName = document.getElementById('resultName');
+        const resultId = document.getElementById('resultId');
+        const averageScore = document.getElementById('averageScore');
+        const classBadges = document.querySelectorAll('.class-badge');
+
+        // 添加事件监听器
+        searchBtn.addEventListener('click', searchStudent);
+        retryBtn.addEventListener('click', resetForm);
+        studentIdInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchStudent();
+        });
+        studentNameInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchStudent();
+        });
+
+        // 班级选择
+        classBadges.forEach(badge => {
+            badge.addEventListener('click', function() {
+                classBadges.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 搜索学生函数
+        function searchStudent() {
+            const id = studentIdInput.value.trim();
+            const name = studentNameInput.value.trim();
+            
+            if (!id || !name) {
+                showError("学号和姓名不能为空");
+                return;
+            }
+            
+            const student = studentsData.find(s => 
+                s.id === id && s.name === name
+            );
+            
+            if (student) {
+                displayStudentResult(student);
+            } else {
+                showError("未找到该学生的成绩信息，请检查学号和姓名是否正确");
+            }
+        }
+
+        // 显示学生成绩结果
+        function displayStudentResult(student) {
+            // 更新学生基本信息
+            resultName.textContent = student.name;
+            resultId.textContent = `学号: ${student.id}`;
+            
+            // 更新成绩表格
+            const tableBody = document.querySelector('.scores-table tbody');
+            tableBody.innerHTML = '';
+            
+            // 计算总分和平均分
+            let totalScore = 0;
+            let subjectCount = 0;
+            
+            // 语文成绩
+            const chineseTotal = student.scores.chinese.test + 
+                               student.scores.chinese.performance + 
+                               student.scores.chinese.homework;
+            totalScore += chineseTotal;
+            subjectCount++;
+            tableBody.innerHTML += `
+                <tr>
+                    <td>语文</td>
+                    <td>${student.scores.chinese.test}</td>
+                    <td>${student.scores.chinese.performance}</td>
+                    <td>${student.scores.chinese.homework}</td>
+                    <td>${chineseTotal}</td>
+                </tr>
+            `;
+            
+            // 数学成绩
+            const mathTotal = student.scores.math.test + 
+                             student.scores.math.performance + 
+                             student.scores.math.homework;
+            totalScore += mathTotal;
+            subjectCount++;
+            tableBody.innerHTML += `
+                <tr>
+                    <td>数学</td>
+                    <td>${student.scores.math.test}</td>
+                    <td>${student.scores.math.performance}</td>
+                    <td>${student.scores.math.homework}</td>
+                    <td>${mathTotal}</td>
+                </tr>
+            `;
+            
+            // 英语成绩
+            const englishTotal = student.scores.english.test + 
+                               student.scores.english.performance + 
+                               student.scores.english.homework;
+            totalScore += englishTotal;
+            subjectCount++;
+            tableBody.innerHTML += `
+                <tr>
+                    <td>英语</td>
+                    <td>${student.scores.english.test}</td>
+                    <td>${student.scores.english.performance}</td>
+                    <td>${student.scores.english.homework}</td>
+                    <td>${englishTotal}</td>
+                </tr>
+            `;
+            
+            // 物理成绩
+            const physicsTotal = student.scores.physics.test + 
+                               student.scores.physics.performance + 
+                               student.scores.physics.homework;
+            totalScore += physicsTotal;
+            subjectCount++;
+            tableBody.innerHTML += `
+                <tr>
+                    <td>物理</td>
+                    <td>${student.scores.physics.test}</td>
+                    <td>${student.scores.physics.performance}</td>
+                    <td>${student.scores.physics.homework}</td>
+                    <td>${physicsTotal}</td>
+                </tr>
+            `;
+            
+            // 化学成绩
+            const chemistryTotal = student.scores.chemistry.test + 
+                                 student.scores.chemistry.performance + 
+                                 student.scores.chemistry.homework;
+            totalScore += chemistryTotal;
+            subjectCount++;
+            tableBody.innerHTML += `
+                <tr>
+                    <td>化学</td>
+                    <td>${student.scores.chemistry.test}</td>
+                    <td>${student.scores.chemistry.performance}</td>
+                    <td>${student.scores.chemistry.homework}</td>
+                    <td>${chemistryTotal}</td>
+                </tr>
+            `;
+            
+            // 计算平均分
+            const avg = totalScore / subjectCount;
+            averageScore.textContent = avg.toFixed(1);
+            
+            // 显示结果容器
+            resultContainer.style.display = 'block';
+            errorContainer.style.display = 'none';
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorContainer.style.display = 'block';
+            resultContainer.style.display = 'none';
+        }
+
+        // 重置表单
+        function resetForm() {
+            studentIdInput.value = '';
+            studentNameInput.value = '';
+            studentIdInput.focus();
+            resultContainer.style.display = 'none';
+            errorContainer.style.display = 'none';
+        }
+        
+        // 页面加载时聚焦到学号输入框
+        window.onload = function() {
+            studentIdInput.focus();
+        };
+    </script>
+</body>
+</html>
